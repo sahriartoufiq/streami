@@ -1,0 +1,211 @@
+syntax = "proto3";
+
+package datastream.v1;
+
+option java_package         = "com.datastream.interfaces.grpc.proto";
+option java_multiple_files  = true;
+option java_outer_classname = "StreamServiceProto";
+
+import "google/protobuf/timestamp.proto";
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+/** Categorises what kind of data flows through a stream. */
+enum StreamType {
+  STREAM_TYPE_UNSPECIFIED = 0;
+  STREAM_TYPE_EVENT       = 1;
+  STREAM_TYPE_LOG         = 2;
+  STREAM_TYPE_METRIC      = 3;
+  STREAM_TYPE_CUSTOM      = 4;
+  // 5-9 reserved for future stream types
+}
+
+/** Lifecycle status of a stream. */
+enum StreamStatus {
+  STREAM_STATUS_UNSPECIFIED = 0;
+  STREAM_STATUS_DRAFT       = 1;
+  STREAM_STATUS_ACTIVE      = 2;
+  STREAM_STATUS_INACTIVE    = 3;
+  STREAM_STATUS_DELETED     = 4;
+  // 5-9 reserved for future statuses
+}
+
+// ---------------------------------------------------------------------------
+// Core domain messages
+// ---------------------------------------------------------------------------
+
+/** Full stream configuration entity returned by the API. */
+message Stream {
+  string                    id          = 1;
+  string                    name        = 2;
+  string                    description = 3;
+  string                    owner_id    = 4;
+  StreamType                stream_type = 5;
+  StreamStatus              status      = 6;
+  // 7-9 reserved for future core stream attributes
+  google.protobuf.Timestamp created_at  = 10;
+  google.protobuf.Timestamp updated_at  = 11;
+}
+
+/** A discrete data event published to or received from a stream. */
+message DataEvent {
+  string                    event_id  = 1;
+  string                    stream_id = 2;
+  bytes                     payload   = 3;
+  // 4-9 reserved for future event attributes
+  map<string, string>       metadata  = 10;
+  google.protobuf.Timestamp timestamp = 11;
+}
+
+/** Pagination metadata included in list responses. */
+message Pagination {
+  int32 page           = 1;
+  int32 size           = 2;
+  int64 total_elements = 3;
+  int32 total_pages    = 4;
+}
+
+/** Filter criteria for listing streams; all fields are optional. */
+message StreamFilter {
+  optional string       owner_id    = 1;
+  // 2-4 reserved for future filter fields
+  optional StreamStatus status      = 5;
+  optional StreamType   stream_type = 6;
+}
+
+// ---------------------------------------------------------------------------
+// CreateStream
+// ---------------------------------------------------------------------------
+
+message CreateStreamRequest {
+  string     name        = 1;
+  string     description = 2;
+  string     owner_id    = 3;
+  StreamType stream_type = 4;
+  // 5-9 reserved for future creation attributes
+}
+
+message CreateStreamResponse {
+  Stream stream = 1;
+}
+
+// ---------------------------------------------------------------------------
+// GetStream
+// ---------------------------------------------------------------------------
+
+message GetStreamRequest {
+  string id = 1;
+}
+
+message GetStreamResponse {
+  Stream stream = 1;
+}
+
+// ---------------------------------------------------------------------------
+// ListStreams
+// ---------------------------------------------------------------------------
+
+message ListStreamsRequest {
+  optional StreamFilter filter = 1;
+  int32                 page   = 2;
+  int32                 size   = 3;
+  // 4-9 reserved for future list options (sorting, cursor-based pagination)
+}
+
+message ListStreamsResponse {
+  repeated Stream streams    = 1;
+  Pagination      pagination = 2;
+}
+
+// ---------------------------------------------------------------------------
+// UpdateStream  (partial update — only present fields are applied)
+// ---------------------------------------------------------------------------
+
+message UpdateStreamRequest {
+  string                id          = 1;
+  optional string       name        = 2;
+  optional string       description = 3;
+  optional StreamType   stream_type = 4;
+  optional StreamStatus status      = 5;
+  // 6-9 reserved for future updatable attributes
+}
+
+message UpdateStreamResponse {
+  Stream stream = 1;
+}
+
+// ---------------------------------------------------------------------------
+// DeleteStream  (soft delete — transitions status to DELETED)
+// ---------------------------------------------------------------------------
+
+message DeleteStreamRequest {
+  string id = 1;
+}
+
+message DeleteStreamResponse {
+  bool   success = 1;
+  // 2-4 reserved
+  string message = 5;
+}
+
+// ---------------------------------------------------------------------------
+// SubscribeToStream  (server-streaming)
+// ---------------------------------------------------------------------------
+
+message SubscribeToStreamRequest {
+  string          stream_id     = 1;
+  optional string from_event_id = 2;  // resume from a known event
+  // 3-9 reserved for future subscription options (filters, back-pressure hints)
+}
+
+// Server streams DataEvent messages directly.
+
+// ---------------------------------------------------------------------------
+// PublishToStream  (client-streaming)
+// ---------------------------------------------------------------------------
+
+message PublishToStreamRequest {
+  string              stream_id = 1;
+  bytes               payload   = 2;
+  map<string, string> metadata  = 3;
+  // 4-9 reserved for future publishing attributes
+}
+
+message PublishToStreamResponse {
+  int64  events_accepted = 1;
+  // 2-4 reserved
+  string message         = 5;
+}
+
+// ---------------------------------------------------------------------------
+// Service definition
+// ---------------------------------------------------------------------------
+
+service StreamService {
+
+  /** Creates a new data stream configuration. */
+  rpc CreateStream(CreateStreamRequest) returns (CreateStreamResponse);
+
+  /** Retrieves a stream by its unique identifier. */
+  rpc GetStream(GetStreamRequest) returns (GetStreamResponse);
+
+  /** Returns a paginated, filterable list of streams. */
+  rpc ListStreams(ListStreamsRequest) returns (ListStreamsResponse);
+
+  /** Updates the configuration of an existing stream (partial update). */
+  rpc UpdateStream(UpdateStreamRequest) returns (UpdateStreamResponse);
+
+  /** Soft-deletes a stream by transitioning its status to DELETED. */
+  rpc DeleteStream(DeleteStreamRequest) returns (DeleteStreamResponse);
+
+  /** Server-streaming: subscribe and receive real-time data events from a stream. */
+  rpc SubscribeToStream(SubscribeToStreamRequest) returns (stream DataEvent);
+
+  /** Client-streaming: publish a batch of data events to a stream. */
+  rpc PublishToStream(stream PublishToStreamRequest) returns (PublishToStreamResponse);
+
+  /** Bidirectional streaming: full-duplex data exchange on a stream. */
+  rpc StreamBidirectional(stream DataEvent) returns (stream DataEvent);
+}

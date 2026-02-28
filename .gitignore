@@ -40,3 +40,6 @@ target/generated-sources/
 # Logs
 *.log
 logs/
+
+# Claude Code local settings
+.claude/

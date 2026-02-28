@@ -9,7 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @SpringBootTest
 @ActiveProfiles("test")
-class DatastreamApiApplicationTest {
+class DatastreamApiApplicationIT {
 
     /**
      * Verifies the Spring application context loads without errors.

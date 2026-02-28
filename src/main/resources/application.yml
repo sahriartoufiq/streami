@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: datastream-api
+  profiles:
+    active: local
+
+  # JPA / Hibernate
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: public
+
+  # Liquibase
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+
+# gRPC server
+grpc:
+  server:
+    port: 9090
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.datastream: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

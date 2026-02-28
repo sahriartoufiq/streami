@@ -1,0 +1,13 @@
+databaseChangeLog:
+  # Master changelog — include all changelogs in chronological order.
+  #
+  # Naming convention for included files:
+  #   YYYY-MM-DD-NNN-description.yaml  (e.g. 2026-03-01-001-create-streams-table.yaml)
+  #
+  # Seed data files (context: dev,local only):
+  #   seed-YYYY-MM-DD-NNN-description.yaml
+  #
+  # Example:
+  # - include:
+  #     file: db/changelog/2026-03-01-001-create-streams-table.yaml
+  #     relativeToChangelogFile: false

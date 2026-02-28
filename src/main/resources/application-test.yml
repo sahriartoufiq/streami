@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    # Testcontainers will override this via @DynamicPropertySource in integration tests.
+    # These values are intentionally left as placeholders.
+    url: jdbc:tc:postgresql:16:///datastream
+    username: datastream
+    password: datastream
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+
+  liquibase:
+    enabled: true
+
+grpc:
+  server:
+    port: 0  # random port for in-process tests
+
+logging:
+  level:
+    root: WARN
+    com.datastream: INFO

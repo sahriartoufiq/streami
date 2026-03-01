@@ -135,6 +135,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- gRPC Services (includes ProtoReflectionService for grpcurl/reflection) -->
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-services</artifactId>
+        </dependency>
+
         <!-- gRPC Testing -->
         <dependency>
             <groupId>io.grpc</groupId>

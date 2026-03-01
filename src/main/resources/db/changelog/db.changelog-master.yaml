@@ -7,7 +7,9 @@ databaseChangeLog:
   # Seed data files (context: dev,local only):
   #   seed-YYYY-MM-DD-NNN-description.yaml
   #
-  # Example:
-  # - include:
-  #     file: db/changelog/2026-03-01-001-create-streams-table.yaml
-  #     relativeToChangelogFile: false
+  - include:
+      file: db/changelog/2026-03-01-001-create-streams-table.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/2026-03-01-002-create-data-events-table.yaml
+      relativeToChangelogFile: false

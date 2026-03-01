@@ -1,0 +1,71 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2026-03-01-001-create-streams-table
+      author: datastream
+      comment: "Creates the streams table for storing stream configuration aggregates."
+      changes:
+        - createTable:
+            tableName: streams
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_streams_name
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: owner_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: stream_type
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMPTZ
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMPTZ
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: streams
+            indexName: idx_streams_owner_id
+            columns:
+              - column:
+                  name: owner_id
+        - createIndex:
+            tableName: streams
+            indexName: idx_streams_status
+            columns:
+              - column:
+                  name: status
+      rollback:
+        - dropIndex:
+            tableName: streams
+            indexName: idx_streams_status
+        - dropIndex:
+            tableName: streams
+            indexName: idx_streams_owner_id
+        - dropTable:
+            tableName: streams

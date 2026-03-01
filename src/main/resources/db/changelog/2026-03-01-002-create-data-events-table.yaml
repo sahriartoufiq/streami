@@ -1,0 +1,57 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2026-03-01-002-create-data-events-table
+      author: datastream
+      comment: "Creates the data_events table for storing events published to streams."
+      changes:
+        - createTable:
+            tableName: data_events
+            columns:
+              - column:
+                  name: event_id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: stream_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payload
+                  type: BYTEA
+                  constraints:
+                    nullable: false
+              - column:
+                  name: metadata
+                  type: JSONB
+              - column:
+                  name: timestamp
+                  type: TIMESTAMPTZ
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: data_events
+            indexName: idx_data_events_stream_id
+            columns:
+              - column:
+                  name: stream_id
+        - createIndex:
+            tableName: data_events
+            indexName: idx_data_events_stream_id_timestamp
+            columns:
+              - column:
+                  name: stream_id
+              - column:
+                  name: timestamp
+                  descending: true
+      rollback:
+        - dropIndex:
+            tableName: data_events
+            indexName: idx_data_events_stream_id_timestamp
+        - dropIndex:
+            tableName: data_events
+            indexName: idx_data_events_stream_id
+        - dropTable:
+            tableName: data_events
